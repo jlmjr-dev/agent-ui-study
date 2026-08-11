@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "resolveJsonModule": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+
+    /* Every package is consumed from source, so one set of path aliases
+       serves the type-checker, Vite and Vitest alike. Paths resolve relative
+       to this file, which is why the app can extend it unchanged. */
+    "paths": {
+      "@agent-ui-study/protocol": ["./packages/protocol/src/index.ts"],
+      "@agent-ui-study/tools": ["./packages/tools/src/index.ts"],
+      "@agent-ui-study/engine": ["./packages/engine/src/index.ts"],
+      "@agent-ui-study/ui": ["./packages/ui/src/index.ts"],
+      "@/*": ["./apps/web/src/*"]
+    }
+  }
+}

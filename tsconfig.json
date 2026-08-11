@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"]
+  },
+  "include": [
+    "packages/*/src",
+    "apps/*/src",
+    "apps/web/vite.config.ts",
+    "vitest.config.ts",
+    "eslint.config.js"
+  ]
+}
