@@ -1,0 +1,30 @@
+{
+  "name": "agent-ui-study",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @agent-ui-study/web dev",
+    "build": "tsc -b && pnpm --filter @agent-ui-study/web build",
+    "preview": "pnpm --filter @agent-ui-study/web preview",
+    "lint": "eslint .",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "typecheck": "tsc -b --pretty",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10",
+    "@types/node": "^24",
+    "eslint": "^10",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17",
+    "jsdom": "^29.1.1",
+    "prettier": "^3.8.3",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "typescript": "~6",
+    "typescript-eslint": "^8",
+    "vitest": "^4.1.10"
+  }
+}
