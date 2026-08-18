@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* The theme is a data attribute rather than a media query, because it is a
+   setting the user chooses and it has to survive a reload. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/**
+ * One palette, declared twice. Everything downstream reads the semantic name,
+ * so a component never knows which theme it is in.
+ *
+ * The neutrals are warm on purpose: a pure grey chat surface reads as cold
+ * and clinical next to long-form prose, and this is an interface people are
+ * meant to read for minutes at a time.
+ */
+:root {
+  --bg: #fbfaf8;
+  --surface: #ffffff;
+  --surface-raised: #f2f0eb;
+  --surface-sunken: #f6f4f0;
+  --border: #e7e3dc;
+  --border-strong: #d6d0c6;
+  --text: #232120;
+  --text-muted: #6b6560;
+  --text-faint: #9c958d;
+  --accent: #11726a;
+  --accent-hover: #0d5c56;
+  --accent-fg: #ffffff;
+  --accent-soft: #e2efed;
+  --danger: #b4372a;
+  --success: #17734d;
+  --warning: #8f5c07;
+  --shadow-color: 30 25 20;
+}
+
+[data-theme="dark"] {
+  --bg: #17161a;
+  --surface: #1e1d22;
+  --surface-raised: #2a2930;
+  --surface-sunken: #131217;
+  --border: #322f38;
+  --border-strong: #464250;
+  --text: #ece9e6;
+  --text-muted: #a49e99;
+  --text-faint: #746e6b;
+  --accent: #5cd8c4;
+  --accent-hover: #7ee6d5;
+  --accent-fg: #0a2b27;
+  --accent-soft: #1d3a37;
+  --danger: #ef7f70;
+  --success: #55cd9a;
+  --warning: #e2b356;
+  --shadow-color: 0 0 0;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", monospace;
+
+  --animate-fade: fade 120ms ease-out;
+  --animate-pop: pop 130ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  --animate-sheet: sheet 220ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  --animate-rise: rise 260ms cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(-2px);
+  }
+}
+
+@keyframes sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color-scheme: light;
+  }
+
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-bg font-sans text-text antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--accent-soft);
+    color: var(--text);
+  }
+
+  /* Quiet scrollbars, so a chat column full of them does not look striped. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-strong);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 99px;
+  }
+}
+
+@utility focus-ring {
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)];
+}
+
+/* The caret that trails streaming text. It is a real element rather than a
+   pseudo-element so it can sit inside the last text node and wrap with it. */
+@utility stream-caret {
+  @apply ml-0.5 inline-block h-[1em] w-[2px] translate-y-[0.15em] rounded-full bg-accent;
+  animation: blink 1.05s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
