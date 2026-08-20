@@ -19,10 +19,27 @@ import { titleFromPrompt } from "@/shared/lib/titles"
  * are the fiddly part, can be tested without rendering anything.
  */
 
+let lastStamp = 0
+
+/**
+ * Siblings are ordered by creation time, and regenerating a reply creates the
+ * new one within the same millisecond as the click that asked for it. A plain
+ * `Date.now()` therefore ties, and a tie makes the branch pager order, and the
+ * branch `deepestLeaf` walks into, depend on how two random ids happen to
+ * compare. This never goes backwards, so siblings always order the way they
+ * were made.
+ */
+function stamp(): number {
+  const now = Date.now()
+  lastStamp = now > lastStamp ? now : lastStamp + 1
+
+  return lastStamp
+}
+
 export function createConversation(
   model: ModelId = DEFAULT_MODEL
 ): Conversation {
-  const now = Date.now()
+  const now = stamp()
 
   return {
     id: createId("conv"),
@@ -52,7 +69,7 @@ export function addUserMessage(
     parentId: conversation.headId,
     role: "user",
     content: [{ type: "text", text }],
-    createdAt: Date.now(),
+    createdAt: stamp(),
     status: "complete",
     ...(attachments.length > 0 ? { attachments } : {}),
   }
@@ -81,7 +98,7 @@ export function addAssistantPlaceholder(
     parentId,
     role: "assistant",
     content: [],
-    createdAt: Date.now(),
+    createdAt: stamp(),
     status: "streaming",
     model,
   }
@@ -128,7 +145,7 @@ export function editUserMessage(
     parentId: original.parentId,
     role: "user",
     content: [{ type: "text", text }],
-    createdAt: Date.now(),
+    createdAt: stamp(),
     status: "complete",
     ...(original.attachments ? { attachments: original.attachments } : {}),
   }
@@ -204,7 +221,7 @@ export function upsertArtifact(
   const existing = conversation.artifacts.find(
     (artifact) => artifact.id === draft.id
   )
-  const version = { content: draft.content, createdAt: Date.now(), messageId }
+  const version = { content: draft.content, createdAt: stamp(), messageId }
 
   // Re-running a scripted conversation replays the same tool call, so an
   // identical body is not a new version.

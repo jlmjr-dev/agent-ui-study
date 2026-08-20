@@ -105,6 +105,19 @@ describe("regenerateFrom", () => {
       total: 2,
     })
   })
+
+  it("puts the newest reply last so the pager counts up", () => {
+    const { conversation, ids } = withTurns(1)
+    const parentId = conversation.nodes[ids[1]].parentId
+
+    const second = addAssistantPlaceholder(conversation, "balanced", parentId)
+    const third = addAssistantPlaceholder(second.conversation, "balanced", parentId)
+
+    expect(branchIndexOf(third.conversation, third.node.id)).toEqual({
+      index: 2,
+      total: 3,
+    })
+  })
 })
 
 describe("switchBranch", () => {
