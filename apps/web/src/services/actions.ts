@@ -88,6 +88,12 @@ export function addUserMessage(
   }
 }
 
+/**
+ * Opens an assistant message under `parentId`. This is also how a reply is
+ * regenerated: pass the existing reply's parent and the new one lands beside
+ * it as a sibling. There is deliberately no separate `regenerate` action, so
+ * there is only one place a reply node can come from.
+ */
 export function addAssistantPlaceholder(
   conversation: Conversation,
   model: ModelId,
@@ -158,18 +164,6 @@ export function editUserMessage(
       headId: node.id,
     }),
   }
-}
-
-/** Regenerating forks the reply the same way an edit forks the prompt. */
-export function regenerateFrom(
-  conversation: Conversation,
-  assistantId: string,
-  model: ModelId
-): { conversation: Conversation; node: MessageNode } | null {
-  const original = conversation.nodes[assistantId]
-  if (!original || original.role !== "assistant") return null
-
-  return addAssistantPlaceholder(conversation, model, original.parentId)
 }
 
 /**

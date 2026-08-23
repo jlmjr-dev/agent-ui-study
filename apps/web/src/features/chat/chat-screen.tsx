@@ -8,7 +8,6 @@ import { useCallback } from "react"
 import {
   addUserMessage,
   editUserMessage,
-  regenerateFrom,
   switchBranch,
 } from "@/services/actions"
 import { useStore } from "@/services/store-context"
@@ -61,13 +60,14 @@ export function ChatScreen({
 
   const regenerate = useCallback(
     (nodeId: string) => {
-      const next = regenerateFrom(conversation, nodeId, conversation.model)
-      if (!next) return
+      const original = conversation.nodes[nodeId]
+      if (!original) return
 
-      store.upsert(next.conversation)
-      start(next.conversation, next.node.parentId)
+      // Starting a run under the original's parent is what makes the new
+      // reply a sibling. Creating a node here as well would add two.
+      start(conversation, original.parentId)
     },
-    [conversation, start, store]
+    [conversation, start]
   )
 
   const setModel = useCallback(

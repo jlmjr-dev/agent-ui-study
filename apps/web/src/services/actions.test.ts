@@ -7,7 +7,6 @@ import {
   createConversation,
   deleteSubtree,
   editUserMessage,
-  regenerateFrom,
   switchBranch,
   updateNode,
   upsertArtifact,
@@ -94,10 +93,16 @@ describe("editUserMessage", () => {
   })
 })
 
-describe("regenerateFrom", () => {
-  it("adds a sibling reply under the same prompt", () => {
+describe("regenerating a reply", () => {
+  it("adds exactly one sibling under the same prompt", () => {
     const { conversation, ids } = withTurns(1)
-    const again = regenerateFrom(conversation, ids[1], "deep")!
+    const original = conversation.nodes[ids[1]]
+
+    const again = addAssistantPlaceholder(
+      conversation,
+      "deep",
+      original.parentId
+    )
 
     expect(again.node.parentId).toBe(ids[0])
     expect(branchIndexOf(again.conversation, again.node.id)).toEqual({
@@ -111,7 +116,11 @@ describe("regenerateFrom", () => {
     const parentId = conversation.nodes[ids[1]].parentId
 
     const second = addAssistantPlaceholder(conversation, "balanced", parentId)
-    const third = addAssistantPlaceholder(second.conversation, "balanced", parentId)
+    const third = addAssistantPlaceholder(
+      second.conversation,
+      "balanced",
+      parentId
+    )
 
     expect(branchIndexOf(third.conversation, third.node.id)).toEqual({
       index: 2,
