@@ -40,6 +40,14 @@ export function Shell() {
     navigate("/")
   }, [navigate])
 
+  // On a phone the sidebar is a drawer over the conversation, so picking a
+  // chat has to dismiss it. On a desktop it is a column and stays put.
+  const closeSidebarOnPhone = useCallback(() => {
+    if (!window.matchMedia("(min-width: 768px)").matches) {
+      set("sidebarOpen", false)
+    }
+  }, [set])
+
   useHotkeys(
     useMemo(
       () => [
@@ -72,6 +80,7 @@ export function Shell() {
             <Sidebar
               onClose={() => set("sidebarOpen", false)}
               onOpenSettings={() => setSettingsOpen(true)}
+              onNavigate={closeSidebarOnPhone}
             />
           </div>
         </>

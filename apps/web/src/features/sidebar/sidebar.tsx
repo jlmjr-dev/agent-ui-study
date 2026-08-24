@@ -27,9 +27,11 @@ import { groupConversations } from "./group-conversations"
 export type SidebarProps = {
   onClose: () => void
   onOpenSettings: () => void
+  /** Fires after picking a chat, so a drawer can get out of the way. */
+  onNavigate: () => void
 }
 
-export function Sidebar({ onClose, onOpenSettings }: SidebarProps) {
+export function Sidebar({ onClose, onOpenSettings, onNavigate }: SidebarProps) {
   const store = useStore()
   const navigate = useNavigate()
   const { conversationId } = useParams()
@@ -56,7 +58,10 @@ export function Sidebar({ onClose, onOpenSettings }: SidebarProps) {
         <Button
           variant="secondary"
           icon={<MessageSquarePlus className="size-4" />}
-          onClick={() => navigate("/")}
+          onClick={() => {
+            navigate("/")
+            onNavigate()
+          }}
           className="justify-start"
         >
           New chat
@@ -95,6 +100,7 @@ export function Sidebar({ onClose, onOpenSettings }: SidebarProps) {
                   <li key={conversation.id} className="group/row relative">
                     <Link
                       to={`/c/${conversation.id}`}
+                      onClick={onNavigate}
                       className={cn(
                         "block truncate rounded-lg py-1.5 pr-9 pl-2 text-[13px] focus-ring transition-colors",
                         conversation.id === conversationId

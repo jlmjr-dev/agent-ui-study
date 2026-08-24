@@ -27,13 +27,22 @@ export type Settings = {
   sidebarOpen: boolean
 }
 
-const DEFAULTS: Settings = {
-  theme: "system",
-  apiKey: "",
-  useLiveProvider: false,
-  showThinking: true,
-  instantStream: false,
-  sidebarOpen: true,
+/**
+ * The sidebar's default depends on the screen it first opens on. A drawer that
+ * covers the whole app is the wrong thing to greet a phone with, and a
+ * hard-coded `true` does exactly that.
+ */
+function defaults(): Settings {
+  return {
+    theme: "system",
+    apiKey: "",
+    useLiveProvider: false,
+    showThinking: true,
+    instantStream: false,
+    sidebarOpen:
+      typeof window === "undefined" ||
+      window.matchMedia("(min-width: 768px)").matches,
+  }
 }
 
 type SettingsValue = {
@@ -46,7 +55,7 @@ const SettingsContext = createContext<SettingsValue | null>(null)
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<Settings>(() => ({
-    ...DEFAULTS,
+    ...defaults(),
     ...readJson<Partial<Settings>>(SETTINGS_KEY, {}),
   }))
 
@@ -59,7 +68,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ settings, set, reset: () => setSettings(DEFAULTS) }),
+    () => ({ settings, set, reset: () => setSettings(defaults()) }),
     [settings, set]
   )
 
