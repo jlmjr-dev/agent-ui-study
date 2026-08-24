@@ -17,6 +17,8 @@ it is not a drop-in replacement for any of their products. Every reply ships
 from a scripted conversation committed to this repo. There is no model in the
 box.
 
+![A finished agent run: the plan, the tool calls, and the answer](docs/screenshot-conversation.png)
+
 ## What it does
 
 - **Streams like the real thing.** A provider yields the same server-sent
@@ -31,6 +33,17 @@ box.
   HTML, and source view.
 - **Runs against the real API** if you paste a key into settings. Same
   interface, same event stream, different provider.
+- **Ships for both experiences.** Desktop gets a sidebar column, hover
+  affordances and a side-by-side panel. Phones get a drawer that dismisses
+  itself, full-width controls, and panels that take the screen rather than a
+  gutter.
+
+<img src="docs/screenshot-mobile.png" alt="The same conversation at 390px" width="330">
+
+The workspace panel is the honest part of the demo: the tool said it rewrote
+`src/cart.ts`, and the file next to it is the file it wrote.
+
+![The transcript beside the file the tool actually rewrote](docs/screenshot-workspace.png)
 
 ## The parts worth reading
 
@@ -56,6 +69,8 @@ anything. Two rules turn out to matter more than they look:
   tie makes the pager's order depend on how two random ids happen to compare.
 
 `packages/protocol/src/tree.ts` and `apps/web/src/services/actions.ts`.
+
+![Two versions of one reply, with the turn's pager](docs/screenshot-branching.png)
 
 ### One reply, many round trips
 
@@ -84,6 +99,21 @@ message, once to commit it. Code blocks memoise on their own source, so a
 finished block is not re-tokenised on every subsequent frame.
 
 `apps/web/src/features/chat/run-context.tsx`.
+
+### Artifacts render live, in the theme they are being read in
+
+An HTML artifact previews in an iframe sandboxed with `allow-scripts` and
+without `allow-same-origin`, so the script inside runs against an opaque
+origin and cannot reach this page's DOM, storage or cookies. Dropping that one
+token is the whole difference between a live preview and handing a generated
+document the session.
+
+An iframe is its own document, so it follows the operating system rather than
+the app. The preview injects the resolved theme ahead of the artifact's own
+styles, which is why the panel below is dark rather than a lit slab in a dark
+page.
+
+![An HTML artifact running in the side panel](docs/screenshot-artifact.png)
 
 ### A syntax highlighter in 200 lines
 
@@ -153,6 +183,8 @@ configure and no key to set: the suggestions on a new chat are the scripted
 conversations, read straight out of the engine so they cannot drift from what
 actually runs.
 
+![A new chat, offering the scripted conversations](docs/screenshot-welcome.png)
+
 ### Other scripts
 
 ```bash
@@ -182,7 +214,7 @@ Two things are worth being honest about:
 
 ## Testing
 
-100 tests, all on the parts where being wrong is quiet rather than loud: the
+103 tests, all on the parts where being wrong is quiet rather than loud: the
 stream assembler including interrupted tool arguments, the tree's branching and
 its cycle guard, the filesystem's glob and grep, the tool registry's error
 paths, the agent loop's re-indexing and its abort, sidebar bucketing by
