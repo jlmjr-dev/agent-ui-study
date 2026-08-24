@@ -35,8 +35,12 @@ export function Tabs<T extends string>({
           onClick={() => onChange(option.value)}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-[7px] px-2.5 py-1 text-[13px] font-medium focus-ring transition-colors",
+            // `surface-active` rather than `surface`: in dark mode the track
+            // is lighter than the surface, so selecting with `surface` makes
+            // the chosen tab the darkest thing in the control and selection
+            // reads inverted.
             value === option.value
-              ? "bg-surface text-text shadow-sm"
+              ? "bg-surface-active text-text shadow-sm"
               : "text-text-muted hover:text-text"
           )}
         >
