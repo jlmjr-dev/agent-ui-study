@@ -2,6 +2,9 @@ import type { Artifact } from "@agent-ui-study/protocol"
 
 import { CodeBlock } from "@/features/markdown/code-block"
 import { Markdown } from "@/features/markdown/markdown"
+import { useResolvedTheme } from "@/features/theme/use-theme"
+
+import { withColorScheme } from "./color-scheme"
 
 export function ArtifactPreview({
   artifact,
@@ -12,6 +15,8 @@ export function ArtifactPreview({
   content: string
   mode: "preview" | "source"
 }) {
+  const theme = useResolvedTheme()
+
   if (mode === "source" || artifact.kind === "code") {
     return (
       <div className="p-4">
@@ -38,8 +43,11 @@ export function ArtifactPreview({
       <iframe
         title={artifact.title}
         sandbox="allow-scripts"
-        srcDoc={content}
-        className="h-full w-full border-0 bg-white"
+        srcDoc={withColorScheme(content, theme)}
+        // The frame takes the panel's own surface rather than forcing white,
+        // so an artifact that declares `color-scheme: light dark` follows the
+        // theme instead of punching a lit slab into a dark page.
+        className="h-full w-full border-0 bg-surface"
       />
     )
   }

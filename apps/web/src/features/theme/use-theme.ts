@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 
 import { useSettings } from "@/features/settings/settings-context"
 
@@ -29,4 +29,34 @@ export function useApplyTheme(): void {
 
     return () => query.removeEventListener("change", apply)
   }, [settings.theme])
+}
+
+/**
+ * The theme actually in force, with "system" already resolved. Anything that
+ * has to hand a concrete light or dark to something outside the document, such
+ * as an iframe, needs this rather than the raw preference.
+ */
+export function useResolvedTheme(): "light" | "dark" {
+  const { settings } = useSettings()
+  const [systemIsDark, setSystemIsDark] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+  )
+
+  useEffect(() => {
+    if (settings.theme !== "system") return
+
+    const query = window.matchMedia("(prefers-color-scheme: dark)")
+    const apply = () => setSystemIsDark(query.matches)
+
+    apply()
+    query.addEventListener("change", apply)
+
+    return () => query.removeEventListener("change", apply)
+  }, [settings.theme])
+
+  if (settings.theme !== "system") return settings.theme
+
+  return systemIsDark ? "dark" : "light"
 }
