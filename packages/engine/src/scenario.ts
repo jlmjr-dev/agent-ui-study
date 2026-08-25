@@ -14,7 +14,9 @@ export type ScriptedStep =
 
 export type Scenario = {
   id: string
-  /** Shown in the "try this" list on an empty conversation. */
+  /** A short noun phrase for the suggestion chip on an empty conversation. */
+  label: string
+  /** The full text the chip actually sends. */
   prompt: string
   keywords: string[]
   turns: ScriptedStep[][]

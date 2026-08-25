@@ -20,6 +20,7 @@ export function total(cart: Cart): Money {
 
 const debugging: Scenario = {
   id: "debugging",
+  label: "Debug the cart total",
   prompt:
     "Something is wrong with the cart total when a discount is applied. Find it.",
   keywords: ["bug", "wrong", "cart total", "discount", "broken", "fix"],
@@ -97,6 +98,7 @@ const debugging: Scenario = {
 
 const research: Scenario = {
   id: "research",
+  label: "Discounts and sales tax",
   prompt: "Should sales tax be calculated before or after a discount?",
   keywords: ["sales tax", "before or after", "tax be calculated", "should tax"],
   turns: [
@@ -123,6 +125,7 @@ const research: Scenario = {
 
 const artifact: Scenario = {
   id: "artifact",
+  label: "Write an onboarding guide",
   prompt: "Write me a short onboarding guide for this codebase.",
   keywords: [
     "guide",
@@ -208,6 +211,7 @@ pnpm build   # tsc -b
 
 const buildArtifact: Scenario = {
   id: "build",
+  label: "Build a tip calculator",
   prompt: "Build me a small tip calculator I can actually use.",
   keywords: [
     "build me",
@@ -307,6 +311,7 @@ const buildArtifact: Scenario = {
 
 const explain: Scenario = {
   id: "explain",
+  label: "How streaming works here",
   prompt: "How does streaming actually work in this app?",
   keywords: [
     "streaming",

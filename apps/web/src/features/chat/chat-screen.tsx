@@ -76,39 +76,55 @@ export function ChatScreen({
     [conversation.id, store]
   )
 
+  const composer = (
+    <Composer
+      model={conversation.model}
+      onModelChange={setModel}
+      onSend={send}
+      onStop={stop}
+      running={running}
+      autoFocus={empty}
+    />
+  )
+
+  const footnote = (
+    <p className="mt-2 text-center text-[11px] text-text-faint">
+      A study rebuild. Replies come from scripted conversations unless a key is
+      set.
+    </p>
+  )
+
+  // On an empty chat the composer is the whole interface, so the greeting, the
+  // input and the suggestions form one centred group rather than being split
+  // across the full height of the viewport.
+  if (empty) {
+    return (
+      <div className="flex h-full min-h-0 items-center justify-center overflow-y-auto px-4 py-10">
+        <div className="w-full max-w-3xl">
+          <Welcome onPick={(prompt) => send(prompt, [])} composer={composer} />
+          {footnote}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {empty ? (
-        <div className="flex min-h-0 flex-1 items-center overflow-y-auto">
-          <Welcome onPick={(prompt) => send(prompt, [])} />
-        </div>
-      ) : (
-        <Transcript
-          conversation={conversation}
-          onEdit={edit}
-          onRegenerate={regenerate}
-          onSwitchBranch={(nodeId) =>
-            store.update(conversation.id, (current) =>
-              switchBranch(current, nodeId)
-            )
-          }
-          onOpenArtifact={onOpenArtifact}
-        />
-      )}
+      <Transcript
+        conversation={conversation}
+        onEdit={edit}
+        onRegenerate={regenerate}
+        onSwitchBranch={(nodeId) =>
+          store.update(conversation.id, (current) =>
+            switchBranch(current, nodeId)
+          )
+        }
+        onOpenArtifact={onOpenArtifact}
+      />
 
       <div className="mx-auto w-full max-w-3xl shrink-0 px-4 pt-1 pb-4">
-        <Composer
-          model={conversation.model}
-          onModelChange={setModel}
-          onSend={send}
-          onStop={stop}
-          running={running}
-          autoFocus={empty}
-        />
-        <p className="mt-2 text-center text-[11px] text-text-faint">
-          A study rebuild. Replies come from scripted conversations unless a key
-          is set.
-        </p>
+        {composer}
+        {footnote}
       </div>
     </div>
   )

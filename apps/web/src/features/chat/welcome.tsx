@@ -1,5 +1,6 @@
 import { SCENARIOS } from "@agent-ui-study/engine"
 import { ArrowUpRight } from "lucide-react"
+import type { ReactNode } from "react"
 
 import { Wordmark } from "@/shared/components/wordmark"
 
@@ -8,7 +9,13 @@ import { Wordmark } from "@/shared/components/wordmark"
  * the engine. A demo that offers prompts it cannot answer is worse than one
  * that offers none, and this cannot drift out of sync with what actually runs.
  */
-export function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
+export function Welcome({
+  onPick,
+  composer,
+}: {
+  onPick: (prompt: string) => void
+  composer: ReactNode
+}) {
   return (
     <div className="mx-auto flex w-full max-w-2xl animate-rise flex-col items-center px-4 py-10">
       <Wordmark className="mb-3 size-9" />
@@ -21,7 +28,9 @@ export function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
         end to end, tools included.
       </p>
 
-      <div className="mt-7 grid w-full gap-2 sm:grid-cols-2">
+      <div className="mt-7 w-full">{composer}</div>
+
+      <div className="mt-3 grid w-full gap-2 sm:grid-cols-2">
         {SCENARIOS.map((scenario) => (
           <button
             key={scenario.id}
@@ -30,7 +39,7 @@ export function Welcome({ onPick }: { onPick: (prompt: string) => void }) {
             className="group flex items-start gap-2 rounded-xl border border-border bg-surface p-3 text-left focus-ring transition-colors hover:border-border-strong hover:bg-surface-raised"
           >
             <span className="flex-1 text-[13px] leading-6 text-text">
-              {scenario.prompt}
+              {scenario.label}
             </span>
             <ArrowUpRight className="mt-0.5 size-4 shrink-0 text-text-faint transition-colors group-hover:text-accent" />
           </button>
