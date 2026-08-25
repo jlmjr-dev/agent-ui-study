@@ -68,17 +68,18 @@ export function Sidebar({ onClose, onOpenSettings, onNavigate }: SidebarProps) {
         </Button>
 
         <div className="relative">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-text-faint" />
+          <Search className="pointer-events-none absolute top-1/2 left-[13px] size-4 -translate-y-1/2 text-text-faint" />
           <Input
+            id="sidebar-search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Search chats"
-            className="h-8 pl-8 text-[13px]"
+            className="h-8 pl-9 text-[13px]"
           />
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-2">
         {groups.length === 0 ? (
           <EmptyState
             title={query ? "No matches" : "No chats yet"}
@@ -91,7 +92,7 @@ export function Sidebar({ onClose, onOpenSettings, onNavigate }: SidebarProps) {
         ) : (
           groups.map(([label, items]) => (
             <section key={label} className="mb-3">
-              <h2 className="px-2 py-1 text-[11px] font-medium text-text-faint">
+              <h2 className="px-[13px] py-1 text-[11px] font-medium text-text-faint">
                 {label}
               </h2>
 
@@ -102,19 +103,19 @@ export function Sidebar({ onClose, onOpenSettings, onNavigate }: SidebarProps) {
                       to={`/c/${conversation.id}`}
                       onClick={onNavigate}
                       className={cn(
-                        "block truncate rounded-lg py-1.5 pr-9 pl-2 text-[13px] focus-ring transition-colors",
+                        "block truncate rounded-lg py-1.5 pr-9 pl-[13px] text-[13px] focus-ring transition-colors",
                         conversation.id === conversationId
                           ? "bg-surface-raised text-text"
                           : "text-text-muted hover:bg-surface-raised hover:text-text"
                       )}
                     >
-                      {conversation.pinned ? (
-                        <Pin className="mr-1 inline size-3 align-[-1px]" />
-                      ) : null}
+                      {/* No inline pin marker: pinned chats already sit under
+                          their own heading, and reserving a column for the
+                          glyph pushed every other title off the rail. */}
                       {conversation.title}
                     </Link>
 
-                    <span className="absolute top-1/2 right-1 -translate-y-1/2 opacity-0 transition-opacity group-hover/row:opacity-100 focus-within:opacity-100">
+                    <span className="reveal absolute top-1/2 right-0 -translate-y-1/2">
                       <Menu
                         align="end"
                         trigger={(props) => (

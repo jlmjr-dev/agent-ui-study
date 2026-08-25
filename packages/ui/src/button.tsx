@@ -10,13 +10,16 @@ const VARIANTS: Record<ButtonVariant, string> = {
     "bg-accent text-accent-fg hover:bg-accent-hover disabled:bg-accent/50",
   secondary:
     "border border-border bg-surface text-text hover:bg-surface-raised hover:border-border-strong",
-  ghost: "text-text-muted hover:bg-surface-raised hover:text-text",
+  // A transparent border, so a ghost button and a bordered one in the same
+  // column put their icons on the same rail.
+  ghost:
+    "border border-transparent text-text-muted hover:bg-surface-raised hover:text-text",
   danger: "bg-danger text-white hover:brightness-110",
 }
 
 const SIZES: Record<ButtonSize, string> = {
   sm: "h-8 gap-1.5 rounded-lg px-2.5 text-[13px]",
-  md: "h-9 gap-2 rounded-lg px-3.5 text-sm",
+  md: "h-9 gap-2 rounded-lg px-3 text-sm",
   lg: "h-11 gap-2 rounded-xl px-5 text-[15px]",
 }
 
