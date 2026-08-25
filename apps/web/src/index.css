@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/**
+ * Tailwind v4 detects sources from the Vite root, which is this app, so it
+ * never sees the workspace packages. Without this every utility used only in
+ * `@agent-ui-study/ui` is missing from the stylesheet: the primitives render
+ * with no height, no padding and no variants, and nothing errors.
+ */
+@source "../../../packages/ui/src";
+
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/jetbrains-mono";
 
@@ -8,7 +16,12 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 /**
- * One palette, declared twice. Everything downstream reads the semantic name,
+ * One palette, declared twice.
+ *
+ * `--text-faint` and `--border-strong` are picked to clear WCAG against the
+ * *darkest* surface they actually sit on, not just against `--surface`: faint
+ * text carries real content (token counts, timestamps, code comments) and a
+ * border is often a control's only boundary. Everything downstream reads the semantic name,
  * so a component never knows which theme it is in.
  *
  * The neutrals are warm on purpose: a pure grey chat surface reads as cold
@@ -21,11 +34,11 @@
   --surface-raised: #f2f0eb;
   --surface-sunken: #f6f4f0;
   --surface-active: #ffffff;
-  --border: #e7e3dc;
-  --border-strong: #d6d0c6;
+  --border: #ddd8cf;
+  --border-strong: #91897c;
   --text: #232120;
   --text-muted: #6b6560;
-  --text-faint: #9c958d;
+  --text-faint: #736c64;
   --accent: #11726a;
   --accent-hover: #0d5c56;
   --accent-fg: #ffffff;
@@ -42,11 +55,11 @@
   --surface-raised: #2a2930;
   --surface-sunken: #131217;
   --surface-active: #3b3945;
-  --border: #322f38;
-  --border-strong: #464250;
+  --border: #3b3743;
+  --border-strong: #766f85;
   --text: #ece9e6;
   --text-muted: #a49e99;
-  --text-faint: #746e6b;
+  --text-faint: #968f8b;
   --accent: #5cd8c4;
   --accent-hover: #7ee6d5;
   --accent-fg: #0a2b27;
@@ -150,8 +163,30 @@
   }
 }
 
+/**
+ * Inset rather than offset. An offset ring paints 4px outside the border box,
+ * which an `overflow-hidden` card clips away entirely, and its halo colour can
+ * only ever match one surface. Inset needs neither.
+ */
 @utility focus-ring {
-  @apply outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)];
+  @apply outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-inset;
+}
+
+/**
+ * Controls that appear on hover. `invisible` rather than opacity alone, so a
+ * hidden control is not still clickable and tabbable, and always visible where
+ * the pointer cannot hover at all: on a touch screen an opacity-gated action
+ * is simply unreachable.
+ */
+@utility reveal {
+  @apply invisible opacity-0 transition-opacity;
+  @apply group-hover:visible group-hover:opacity-100;
+  @apply focus-within:visible focus-within:opacity-100;
+
+  @media (hover: none) {
+    visibility: visible;
+    opacity: 1;
+  }
 }
 
 /* The caret that trails streaming text. It is a real element rather than a
@@ -164,6 +199,20 @@
 @keyframes blink {
   50% {
     opacity: 0;
+  }
+}
+
+/**
+ * A comfortable target on a touch screen is 44px. Rather than inflate every
+ * control everywhere, the floor applies only where the pointer is coarse.
+ */
+@media (pointer: coarse) {
+  button,
+  a[href],
+  [role="switch"],
+  [role="tab"],
+  [role="menuitem"] {
+    min-block-size: 44px;
   }
 }
 
