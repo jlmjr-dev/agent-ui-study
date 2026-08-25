@@ -17,11 +17,16 @@ function languageOf(className: unknown): string | null {
  */
 export const Markdown = memo(function Markdown({ text }: { text: string }) {
   return (
-    <div className="text-[15px] leading-7 text-text [&>:first-child]:mt-0 [&>:last-child]:mb-0">
+    /* 16px in a 736px column lands under 90 characters. At 15px the same
+       column runs past 100, which is where long-form prose stops being easy
+       to track from one line to the next. */
+    <div className="text-[16px] leading-[1.7] text-text [&>:first-child]:mt-0 [&>:last-child]:mb-0">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          p: ({ children }) => <p className="my-3">{children}</p>,
+          // A paragraph gap has to beat the line gap inside one, or the
+          // boundaries read as line breaks and the answer becomes a slab.
+          p: ({ children }) => <p className="my-4">{children}</p>,
 
           h1: ({ children }) => (
             <h1 className="mt-6 mb-3 text-xl font-semibold">{children}</h1>
@@ -30,14 +35,14 @@ export const Markdown = memo(function Markdown({ text }: { text: string }) {
             <h2 className="mt-6 mb-2.5 text-lg font-semibold">{children}</h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-5 mb-2 text-[15px] font-semibold">{children}</h3>
+            <h3 className="mt-5 mb-2 text-[16px] font-semibold">{children}</h3>
           ),
 
           ul: ({ children }) => (
-            <ul className="my-3 list-disc space-y-1.5 pl-5">{children}</ul>
+            <ul className="my-4 list-disc space-y-1.5 pl-5">{children}</ul>
           ),
           ol: ({ children }) => (
-            <ol className="my-3 list-decimal space-y-1.5 pl-5">{children}</ol>
+            <ol className="my-4 list-decimal space-y-1.5 pl-5">{children}</ol>
           ),
           li: ({ children }) => <li className="pl-1">{children}</li>,
 
