@@ -13,7 +13,7 @@ import {
 import { Spinner, cn } from "@agent-ui-study/ui"
 import { useState, type ComponentType } from "react"
 
-import { describeToolCall, summarizeResult } from "./tool-label"
+import { describeToolCall, isCodeTarget, summarizeResult } from "./tool-label"
 
 const ICONS: Record<string, ComponentType<{ className?: string }>> = {
   read_file: FileText,
@@ -39,10 +39,10 @@ export type ToolBlockProps = {
  */
 export function ToolBlock({ call, result, onOpenArtifact }: ToolBlockProps) {
   const [open, setOpen] = useState(false)
-  const { verb, target } = describeToolCall(call)
+  const pending = result === null
+  const { verb, target } = describeToolCall(call, pending)
   const Icon = ICONS[call.name] ?? Wrench
 
-  const pending = result === null
   const failed = result?.is_error === true
   const summary = summarizeResult(result?.detail)
 
@@ -72,7 +72,15 @@ export function ToolBlock({ call, result, onOpenArtifact }: ToolBlockProps) {
 
           <span className="shrink-0 text-text-muted">{verb}</span>
           {target ? (
-            <span className="truncate font-mono text-[12px] text-text">
+            <span
+              className={cn(
+                "truncate text-text",
+                // A natural-language query is not code, so it is not set in mono.
+                isCodeTarget(call.name)
+                  ? "font-mono text-[12px]"
+                  : "text-[13px]"
+              )}
+            >
               {target}
             </span>
           ) : null}

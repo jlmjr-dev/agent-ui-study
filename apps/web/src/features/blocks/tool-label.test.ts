@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 
-import { describeToolCall, summarizeResult } from "./tool-label"
+import { describeToolCall, isCodeTarget, summarizeResult } from "./tool-label"
 
 const call = (name: string, input: Record<string, unknown>) => ({
   type: "tool_use" as const,
@@ -10,6 +10,22 @@ const call = (name: string, input: Record<string, unknown>) => ({
 })
 
 describe("describeToolCall", () => {
+  it("is present tense while the call is still running", () => {
+    // A card that says "Wrote src/cart.ts" beside a spinner is claiming a
+    // write that has not returned.
+    expect(
+      describeToolCall(call("write_file", { path: "a.ts" }), true).verb
+    ).toBe("Writing")
+    expect(
+      describeToolCall(call("write_file", { path: "a.ts" }), false).verb
+    ).toBe("Wrote")
+  })
+
+  it("only treats paths and commands as code", () => {
+    expect(isCodeTarget("run_command")).toBe(true)
+    expect(isCodeTarget("web_search")).toBe(false)
+  })
+
   it("reads as a sentence", () => {
     expect(
       describeToolCall(call("read_file", { path: "src/cart.ts" }))
