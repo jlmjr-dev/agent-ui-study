@@ -31,7 +31,13 @@ export function useHotkeys(hotkeys: Hotkey[]): void {
         if (event.key.toLowerCase() !== hotkey.key) continue
         if (Boolean(hotkey.meta) !== modified) continue
         if (Boolean(hotkey.shift) !== event.shiftKey) continue
-        if (!hotkey.meta && isTypingTarget(event.target)) continue
+        // Escape is the one bare key that has to work while typing.
+        if (
+          !hotkey.meta &&
+          hotkey.key !== "escape" &&
+          isTypingTarget(event.target)
+        )
+          continue
 
         event.preventDefault()
         hotkey.run()

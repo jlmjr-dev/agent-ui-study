@@ -1,4 +1,9 @@
-import { FolderTree, PanelLeft, PanelRight } from "lucide-react"
+import {
+  FolderTree,
+  MessageSquarePlus,
+  PanelLeft,
+  PanelRight,
+} from "lucide-react"
 import { IconButton, cn } from "@agent-ui-study/ui"
 import { useCallback, useMemo, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
@@ -34,6 +39,9 @@ export function Shell() {
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   const conversation = conversationId ? store.get(conversationId) : undefined
+  const panelIsOverlay =
+    typeof window !== "undefined" &&
+    !window.matchMedia("(min-width: 768px)").matches
 
   const newChat = useCallback(() => {
     setPanel(null)
@@ -89,12 +97,19 @@ export function Shell() {
       <main className="flex min-w-0 flex-1 flex-col">
         <header className="flex h-12 shrink-0 items-center gap-1 border-b border-border px-2">
           {settings.sidebarOpen ? null : (
-            <IconButton
-              label="Show sidebar"
-              onClick={() => set("sidebarOpen", true)}
-            >
-              <PanelLeft className="size-4" />
-            </IconButton>
+            <>
+              <IconButton
+                label="Show sidebar"
+                onClick={() => set("sidebarOpen", true)}
+              >
+                <PanelLeft className="size-4" />
+              </IconButton>
+              {/* Collapsing the sidebar must not take the app's primary
+                  action off the screen with it. */}
+              <IconButton label="New chat" onClick={newChat}>
+                <MessageSquarePlus className="size-4" />
+              </IconButton>
+            </>
           )}
 
           <p className="min-w-0 flex-1 truncate px-2 text-[13px] font-medium text-text">
@@ -146,6 +161,11 @@ export function Shell() {
 
           {panel ? (
             <div
+              // On a phone the panel is a full-screen takeover, so it is a
+              // dialog there and simply a column on a wide screen.
+              role={panelIsOverlay ? "dialog" : undefined}
+              aria-modal={panelIsOverlay ? true : undefined}
+              aria-label="Side panel"
               className={cn(
                 "fixed inset-0 z-30 md:static md:z-auto",
                 "md:w-[42%] md:min-w-96 lg:w-[46%]"
