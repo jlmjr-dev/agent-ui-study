@@ -2,6 +2,7 @@ import type { ContentBlock, ToolResultBlock } from "@agent-ui-study/protocol"
 
 import { Markdown } from "@/features/markdown/markdown"
 
+import { ArtifactCard } from "./artifact-card"
 import { ThinkingBlock } from "./thinking-block"
 import { TodoCard } from "./todo-card"
 import { ToolBlock } from "./tool-block"
@@ -59,6 +60,27 @@ export function BlockList({
 
           if (block.name === "set_todos" && result?.detail?.kind === "todos") {
             return <TodoCard key={index} items={result.detail.items} />
+          }
+
+          if (
+            block.name === "create_artifact" &&
+            result?.detail?.kind === "artifact"
+          ) {
+            const artifactId = result.detail.artifactId
+
+            return (
+              <ArtifactCard
+                key={index}
+                title={result.detail.title}
+                kind={
+                  typeof block.input.kind === "string" &&
+                  ["markdown", "code", "html"].includes(block.input.kind)
+                    ? (block.input.kind as "markdown" | "code" | "html")
+                    : "markdown"
+                }
+                onOpen={() => onOpenArtifact?.(artifactId)}
+              />
+            )
           }
 
           return (
