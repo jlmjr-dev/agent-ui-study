@@ -29,6 +29,7 @@ export function Composer({
 }: ComposerProps) {
   const [text, setText] = useState("")
   const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [dragging, setDragging] = useState(false)
   const textarea = useRef<HTMLTextAreaElement>(null)
   const filePicker = useRef<HTMLInputElement>(null)
 
@@ -42,11 +43,14 @@ export function Composer({
     element.style.height = `${Math.min(element.scrollHeight, 320)}px`
   }, [text])
 
-  function submit() {
-    const trimmed = text.trim()
-    if (!trimmed || running) return
+  // An attachment on its own is a real turn: "look at this file" with the
+  // file and no caption is one of the most common things people send.
+  const canSend = Boolean(text.trim() || attachments.length > 0)
 
-    onSend(trimmed, attachments)
+  function submit() {
+    if (!canSend || running) return
+
+    onSend(text.trim(), attachments)
     setText("")
     setAttachments([])
   }
@@ -75,7 +79,24 @@ export function Composer({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface shadow-sm transition-colors focus-within:border-border-strong">
+    <div
+      onDragOver={(event) => {
+        event.preventDefault()
+        setDragging(true)
+      }}
+      onDragLeave={() => setDragging(false)}
+      onDrop={(event) => {
+        event.preventDefault()
+        setDragging(false)
+        void attach(event.dataTransfer.files)
+      }}
+      className={cn(
+        "rounded-2xl border bg-surface shadow-sm transition-colors",
+        dragging
+          ? "border-accent bg-accent-soft"
+          : "border-border-strong focus-within:border-accent"
+      )}
+    >
       {attachments.length > 0 ? (
         <div className="flex flex-wrap gap-1.5 px-3 pt-3">
           {attachments.map((attachment) => (
@@ -113,7 +134,11 @@ export function Composer({
         value={text}
         autoFocus={autoFocus}
         rows={1}
-        placeholder="Ask anything, or describe a change to make"
+        placeholder={
+          running
+            ? "Waiting for the current reply to finish"
+            : "Ask anything, or describe a change to make"
+        }
         onChange={(event) => setText(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
@@ -121,7 +146,13 @@ export function Composer({
             submit()
           }
         }}
-        className="max-h-80 w-full resize-none bg-transparent px-4 py-3.5 text-[15px] leading-7 text-text outline-none placeholder:text-text-faint"
+        onPaste={(event) => {
+          if (event.clipboardData.files.length > 0) {
+            event.preventDefault()
+            void attach(event.clipboardData.files)
+          }
+        }}
+        className="max-h-80 w-full resize-none bg-transparent px-4 py-3.5 text-[16px] leading-[1.7] text-text outline-none placeholder:text-text-faint"
       />
 
       <div className="flex items-center gap-1 px-2 pb-2">
