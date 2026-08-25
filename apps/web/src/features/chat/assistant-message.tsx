@@ -6,7 +6,7 @@ import {
   type Conversation,
   type MessageNode,
 } from "@agent-ui-study/protocol"
-import { Check, CircleAlert, Copy, RefreshCw, Square } from "lucide-react"
+import { Check, CircleAlert, Copy, RefreshCw } from "lucide-react"
 import { Badge, Button, IconButton, cn } from "@agent-ui-study/ui"
 
 import { BlockList } from "@/features/blocks/block-list"
@@ -20,6 +20,8 @@ import { useMessageContent, useRun } from "./run-context"
 export type AssistantMessageProps = {
   node: MessageNode
   conversation: Conversation
+  /** The last turn keeps its actions on screen; earlier ones reveal on hover. */
+  isLatest: boolean
   onRegenerate: (nodeId: string) => void
   onSwitchBranch: (nodeId: string) => void
   onOpenArtifact: (artifactId: string) => void
@@ -28,12 +30,13 @@ export type AssistantMessageProps = {
 export function AssistantMessage({
   node,
   conversation,
+  isLatest,
   onRegenerate,
   onSwitchBranch,
   onOpenArtifact,
 }: AssistantMessageProps) {
   const { settings } = useSettings()
-  const { run, stop } = useRun()
+  const { run } = useRun()
   const { copied, copy } = useCopy()
 
   const content = useMessageContent(node)
@@ -41,7 +44,7 @@ export function AssistantMessage({
   const { index, total } = branchIndexOf(conversation, node.id)
 
   return (
-    <div className="group/assistant">
+    <div className="group/assistant mt-4">
       <BlockList
         blocks={content}
         streaming={streaming}
@@ -72,24 +75,18 @@ export function AssistantMessage({
         </p>
       ) : null}
 
+      {/* The composer owns stopping a run, so this row waits it out rather than
+          offering a second, quieter stop button beside it. */}
       <div
         className={cn(
-          "mt-1.5 flex items-center gap-1 transition-opacity",
-          streaming
-            ? "opacity-100"
-            : "opacity-0 group-hover/assistant:opacity-100 focus-within:opacity-100"
+          "mt-1.5 flex items-center gap-1",
+          streaming && "invisible",
+          !streaming &&
+            !isLatest &&
+            "reveal group-hover/assistant:visible group-hover/assistant:opacity-100"
         )}
       >
-        {streaming ? (
-          <Button
-            size="sm"
-            variant="secondary"
-            icon={<Square className="size-3" />}
-            onClick={stop}
-          >
-            Stop
-          </Button>
-        ) : (
+        {streaming ? null : (
           <>
             <IconButton
               size="sm"

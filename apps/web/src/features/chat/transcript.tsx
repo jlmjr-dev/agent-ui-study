@@ -39,9 +39,19 @@ export function Transcript({
 
   return (
     <div className="relative min-h-0 flex-1">
+      {/* Status transitions only. Piping streamed text into a live region
+          would announce a reply one fragment at a time, which is worse than
+          announcing nothing at all. */}
+      <p className="sr-only" aria-live="polite" aria-atomic="true">
+        {run ? "Generating a response" : "Response complete"}
+      </p>
+
       <div ref={ref} onScroll={onScroll} className="h-full overflow-y-auto">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-7 px-4 py-6">
-          {path.map((node: MessageNode) =>
+        {/* No uniform gap: a prompt sits close to its own reply and further
+            from the next turn, so the pairs group without needing an avatar or
+            a label to mark the boundary. */}
+        <div className="mx-auto flex w-full max-w-3xl flex-col px-4 py-6">
+          {path.map((node: MessageNode, index) =>
             node.role === "user" ? (
               <UserMessage
                 key={node.id}
@@ -55,6 +65,7 @@ export function Transcript({
                 key={node.id}
                 node={node}
                 conversation={conversation}
+                isLatest={index === path.length - 1}
                 onRegenerate={onRegenerate}
                 onSwitchBranch={onSwitchBranch}
                 onOpenArtifact={onOpenArtifact}

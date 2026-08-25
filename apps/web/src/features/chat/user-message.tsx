@@ -50,7 +50,7 @@ export function UserMessage({
   }
 
   return (
-    <div className="group/user flex flex-col items-end gap-1.5">
+    <div className="group/user mt-10 flex flex-col items-end gap-1.5 first:mt-0">
       {node.attachments?.length ? (
         <div className="flex flex-wrap justify-end gap-1.5">
           {node.attachments.map((attachment) => (
@@ -68,11 +68,11 @@ export function UserMessage({
         </div>
       ) : null}
 
-      <div className="max-w-[85%] rounded-2xl rounded-br-md bg-surface-raised px-4 py-2.5 text-[15px] leading-7 whitespace-pre-wrap text-text">
+      <div className="max-w-[85%] rounded-2xl rounded-br-md bg-surface-raised px-4 py-2.5 text-[16px] leading-[1.7] whitespace-pre-wrap text-text">
         {text}
       </div>
 
-      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/user:opacity-100 focus-within:opacity-100">
+      <div className="reveal flex items-center gap-1 group-hover/user:visible group-hover/user:opacity-100">
         <BranchPager
           index={index}
           total={total}
@@ -129,7 +129,7 @@ function EditForm({
             onSubmit(value)
           }
         }}
-        className="border-transparent bg-transparent text-[15px] leading-7"
+        className="border-transparent bg-transparent text-[16px] leading-[1.7]"
       />
 
       <div className="flex items-center justify-end gap-2 px-1 pt-1">

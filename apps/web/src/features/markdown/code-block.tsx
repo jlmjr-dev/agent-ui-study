@@ -35,6 +35,7 @@ export const CodeBlock = memo(function CodeBlock({
 }: CodeBlockProps) {
   const { copied, copy } = useCopy()
   const tokens = useMemo(() => highlight(code, language), [code, language])
+  const isDiff = language === "diff"
 
   return (
     <div
@@ -49,7 +50,7 @@ export const CodeBlock = memo(function CodeBlock({
           size="sm"
           label={copied ? "Copied" : "Copy code"}
           onClick={() => void copy(code)}
-          className="opacity-0 transition-opacity group-hover/code:opacity-100 focus-visible:opacity-100"
+          className="reveal group-hover/code:visible group-hover/code:opacity-100"
         >
           {copied ? (
             <Check className="size-3.5 text-success" />
@@ -59,15 +60,36 @@ export const CodeBlock = memo(function CodeBlock({
         </IconButton>
       </div>
 
-      <pre className="overflow-x-auto p-3 text-[13px] leading-relaxed">
-        <code className="font-mono">
-          {tokens.map((token, index) => (
-            <span key={index} className={TOKEN_CLASS[token.type]}>
-              {token.value}
-            </span>
-          ))}
-        </code>
-      </pre>
+      {/* A diff is line-oriented, so it is tinted per line rather than
+          tokenised: without this the +/- payoff renders as identical text. */}
+      {isDiff ? (
+        <pre className="overflow-x-auto py-3 text-[13px] leading-relaxed">
+          <code className="font-mono">
+            {code.split("\n").map((line, index) => (
+              <div
+                key={index}
+                className={cn(
+                  "px-3",
+                  line.startsWith("+") && "bg-success/12 text-success",
+                  line.startsWith("-") && "bg-danger/12 text-danger"
+                )}
+              >
+                {line || "\u00a0"}
+              </div>
+            ))}
+          </code>
+        </pre>
+      ) : (
+        <pre className="overflow-x-auto p-3 text-[13px] leading-relaxed">
+          <code className="font-mono">
+            {tokens.map((token, index) => (
+              <span key={index} className={TOKEN_CLASS[token.type]}>
+                {token.value}
+              </span>
+            ))}
+          </code>
+        </pre>
+      )}
     </div>
   )
 })
