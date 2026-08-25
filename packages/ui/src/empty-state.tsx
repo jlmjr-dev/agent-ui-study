@@ -1,18 +1,28 @@
 import type { ReactNode } from "react"
 
+import { cn } from "./cn"
+
 export function EmptyState({
   icon,
   title,
   description,
   action,
+  className,
 }: {
   icon?: ReactNode
   title: string
   description?: string
   action?: ReactNode
+  /** Page-scale callers pass roomier padding; the default fits a sidebar. */
+  className?: string
 }) {
   return (
-    <div className="grid place-items-center px-6 py-14 text-center">
+    <div
+      className={cn(
+        "grid place-items-center px-4 py-10 text-center",
+        className
+      )}
+    >
       {icon ? <div className="mb-3 text-text-faint">{icon}</div> : null}
       <p className="text-sm font-medium text-text">{title}</p>
       {description ? (

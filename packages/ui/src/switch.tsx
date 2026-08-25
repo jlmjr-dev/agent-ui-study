@@ -22,12 +22,14 @@ export function Switch({
       className={cn(
         "relative h-5 w-9 shrink-0 rounded-full focus-ring transition-colors",
         "disabled:pointer-events-none disabled:opacity-50",
-        checked ? "bg-accent" : "bg-border-strong"
+        // The off state is this control's only state indicator, so it has to
+        // clear 3:1 the same way a boundary does.
+        checked ? "bg-accent" : "bg-text-faint"
       )}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-[left]",
+          "absolute top-0.5 size-4 rounded-full bg-surface shadow-sm transition-[left]",
           checked ? "left-4.5" : "left-0.5"
         )}
       />
