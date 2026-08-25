@@ -161,6 +161,13 @@ Packages are consumed straight from source: `exports` points at `src/index.ts`
 and one set of path aliases serves the type-checker, Vite and Vitest alike, so
 there is no build step between editing a package and seeing it in the app.
 
+The one thing that costs: Tailwind detects its sources from the Vite root, so
+it never looks inside a workspace package. `apps/web/src/index.css` declares
+`@source "../../../packages/ui/src"` to reach the design system. Without it
+every utility used only in `@agent-ui-study/ui` is silently absent from the
+stylesheet, the primitives render with no height or padding, and nothing
+errors.
+
 ## Running it
 
 ### Prerequisites
@@ -214,7 +221,7 @@ Two things are worth being honest about:
 
 ## Testing
 
-103 tests, all on the parts where being wrong is quiet rather than loud: the
+105 tests, all on the parts where being wrong is quiet rather than loud: the
 stream assembler including interrupted tool arguments, the tree's branching and
 its cycle guard, the filesystem's glob and grep, the tool registry's error
 paths, the agent loop's re-indexing and its abort, sidebar bucketing by
