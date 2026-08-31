@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router-dom"
 
 import { ChatScreen } from "@/features/chat/chat-screen"
 import { ArtifactPanel } from "@/features/artifacts/artifact-panel"
+import { resolveArtifactId } from "@/features/artifacts/resolve-artifact-id"
 import { SettingsDialog } from "@/features/settings/settings-dialog"
 import { Sidebar } from "@/features/sidebar/sidebar"
 import { useSettings } from "@/features/settings/settings-context"
@@ -42,6 +43,7 @@ export function Shell() {
   const isDesktop = useMediaQuery(DESKTOP_QUERY)
 
   const conversation = conversationId ? store.get(conversationId) : undefined
+  const artifacts = conversation?.artifacts ?? []
 
   const newChat = useCallback(() => {
     setPanel(null)
@@ -133,10 +135,7 @@ export function Shell() {
               setPanel((current) =>
                 current?.kind === "artifact"
                   ? null
-                  : {
-                      kind: "artifact",
-                      id: conversation?.artifacts.at(-1)?.id ?? null,
-                    }
+                  : { kind: "artifact", id: null }
               )
             }
           >
@@ -176,8 +175,8 @@ export function Shell() {
                 // panel: rendering nothing here would leave an empty column
                 // holding the layout open with no way to close it.
                 <ArtifactPanel
-                  artifacts={conversation?.artifacts ?? []}
-                  artifactId={panel.id}
+                  artifacts={artifacts}
+                  artifactId={resolveArtifactId(artifacts, panel.id)}
                   onSelect={(id) => setPanel({ kind: "artifact", id })}
                   onClose={() => setPanel(null)}
                 />
