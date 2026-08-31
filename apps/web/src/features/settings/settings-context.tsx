@@ -11,6 +11,7 @@ import {
 } from "react"
 
 import { readJson, writeJson } from "@/services/storage"
+import { DESKTOP_QUERY } from "@/shared/hooks/use-media-query"
 
 const SETTINGS_KEY = "aus:settings"
 
@@ -63,8 +64,7 @@ function defaults(): Settings {
     showThinking: true,
     instantStream: false,
     sidebarOpen:
-      typeof window === "undefined" ||
-      window.matchMedia("(min-width: 768px)").matches,
+      typeof window === "undefined" || window.matchMedia(DESKTOP_QUERY).matches,
   }
 }
 

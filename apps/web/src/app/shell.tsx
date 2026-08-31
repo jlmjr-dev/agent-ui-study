@@ -17,6 +17,7 @@ import { WorkspacePanel } from "@/features/workspace/workspace-panel"
 import { createConversation } from "@/services/actions"
 import { useStore } from "@/services/store-context"
 import { useHotkeys } from "@/shared/hooks/use-hotkeys"
+import { DESKTOP_QUERY, useMediaQuery } from "@/shared/hooks/use-media-query"
 import { useApplyTheme } from "@/features/theme/use-theme"
 
 type SidePanel =
@@ -38,10 +39,9 @@ export function Shell() {
   const [panel, setPanel] = useState<SidePanel>(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
+  const isDesktop = useMediaQuery(DESKTOP_QUERY)
+
   const conversation = conversationId ? store.get(conversationId) : undefined
-  const panelIsOverlay =
-    typeof window !== "undefined" &&
-    !window.matchMedia("(min-width: 768px)").matches
 
   const newChat = useCallback(() => {
     setPanel(null)
@@ -51,10 +51,8 @@ export function Shell() {
   // On a phone the sidebar is a drawer over the conversation, so picking a
   // chat has to dismiss it. On a desktop it is a column and stays put.
   const closeSidebarOnPhone = useCallback(() => {
-    if (!window.matchMedia("(min-width: 768px)").matches) {
-      set("sidebarOpen", false)
-    }
-  }, [set])
+    if (!isDesktop) set("sidebarOpen", false)
+  }, [isDesktop, set])
 
   useHotkeys(
     useMemo(
@@ -163,8 +161,8 @@ export function Shell() {
             <div
               // On a phone the panel is a full-screen takeover, so it is a
               // dialog there and simply a column on a wide screen.
-              role={panelIsOverlay ? "dialog" : undefined}
-              aria-modal={panelIsOverlay ? true : undefined}
+              role={isDesktop ? undefined : "dialog"}
+              aria-modal={isDesktop ? undefined : true}
               aria-label="Side panel"
               className={cn(
                 "fixed inset-0 z-30 md:static md:z-auto",
