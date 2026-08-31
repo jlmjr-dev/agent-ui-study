@@ -173,14 +173,17 @@ export function Shell() {
             >
               {panel.kind === "workspace" ? (
                 <WorkspacePanel onClose={() => setPanel(null)} />
-              ) : conversation ? (
+              ) : (
+                // A chat that has not started yet has no artifacts, not no
+                // panel: rendering nothing here would leave an empty column
+                // holding the layout open with no way to close it.
                 <ArtifactPanel
-                  conversation={conversation}
+                  artifacts={conversation?.artifacts ?? []}
                   artifactId={panel.id}
                   onSelect={(id) => setPanel({ kind: "artifact", id })}
                   onClose={() => setPanel(null)}
                 />
-              ) : null}
+              )}
             </div>
           ) : null}
         </div>

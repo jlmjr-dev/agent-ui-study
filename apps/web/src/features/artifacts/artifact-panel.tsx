@@ -1,8 +1,4 @@
-import {
-  latestVersion,
-  type Artifact,
-  type Conversation,
-} from "@agent-ui-study/protocol"
+import { latestVersion, type Artifact } from "@agent-ui-study/protocol"
 import {
   Check,
   ChevronLeft,
@@ -21,14 +17,19 @@ import { useCopy } from "@/shared/hooks/use-copy"
 import { ArtifactPreview } from "./artifact-preview"
 
 export type ArtifactPanelProps = {
-  conversation: Conversation
+  /**
+   * The list rather than the conversation: the panel opens from a header
+   * toggle that is available before a chat exists, and it has an empty state
+   * of its own to show for that.
+   */
+  artifacts: Artifact[]
   artifactId: string | null
   onSelect: (artifactId: string) => void
   onClose: () => void
 }
 
 export function ArtifactPanel({
-  conversation,
+  artifacts,
   artifactId,
   onSelect,
   onClose,
@@ -36,8 +37,7 @@ export function ArtifactPanel({
   const [mode, setMode] = useState<"preview" | "source">("preview")
   const { copied, copy } = useCopy()
 
-  const artifact =
-    conversation.artifacts.find((entry) => entry.id === artifactId) ?? null
+  const artifact = artifacts.find((entry) => entry.id === artifactId) ?? null
 
   /**
    * Paging back to an older version is remembered against the artifact and its
@@ -80,7 +80,7 @@ export function ArtifactPanel({
           : undefined
       }
       switcher={
-        conversation.artifacts.length > 1 ? (
+        artifacts.length > 1 ? (
           <Menu
             align="start"
             trigger={(props) => (
@@ -89,10 +89,10 @@ export function ArtifactPanel({
                 type="button"
                 className="rounded-lg px-1.5 py-1 text-[12px] text-text-faint focus-ring hover:text-text"
               >
-                {conversation.artifacts.length} artifacts
+                {artifacts.length} artifacts
               </button>
             )}
-            items={conversation.artifacts.map((entry) => ({
+            items={artifacts.map((entry) => ({
               id: entry.id,
               label: entry.title,
               icon:
