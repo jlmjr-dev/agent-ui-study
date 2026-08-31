@@ -2,8 +2,10 @@ import {
   createLiveProvider,
   createOpenAIProvider,
   createScriptedProvider,
+  openaiModelFor,
   type Provider,
 } from "@agent-ui-study/engine"
+import { modelInfo, type ModelId } from "@agent-ui-study/protocol"
 
 import type { LiveProviderId, Settings } from "./settings-context"
 
@@ -44,4 +46,20 @@ export function providerFor(settings: Settings): Provider {
   }
 
   return createLiveProvider({ apiKey: settings.apiKey.trim() })
+}
+
+/**
+ * The model a turn would actually reach, or null when the scripts answer. The
+ * copy that tells the user where a reply came from reads this, because a
+ * caption claiming the replies are scripted is a lie the moment a key is set.
+ */
+export function liveModelLabel(
+  settings: Settings,
+  model: ModelId
+): string | null {
+  if (!isLive(settings)) return null
+
+  return settings.liveProvider === "openai"
+    ? openaiModelFor(model, settings.openaiModels)
+    : modelInfo(model).apiModel
 }

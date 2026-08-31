@@ -5,6 +5,8 @@ import type {
 } from "@agent-ui-study/protocol"
 import { useCallback } from "react"
 
+import { liveModelLabel } from "@/features/settings/live-provider"
+import { useSettings } from "@/features/settings/settings-context"
 import {
   addUserMessage,
   editUserMessage,
@@ -30,9 +32,11 @@ export function ChatScreen({
   onStarted,
 }: ChatScreenProps) {
   const store = useStore()
+  const { settings } = useSettings()
   const { start, stop, isRunning } = useRun()
   const running = isRunning(conversation.id)
   const empty = Object.keys(conversation.nodes).length === 0
+  const liveModel = liveModelLabel(settings, conversation.model)
 
   const send = useCallback(
     (text: string, attachments: Attachment[]) => {
@@ -89,8 +93,9 @@ export function ChatScreen({
 
   const footnote = (
     <p className="mt-2 text-center text-[11px] text-text-faint">
-      A study rebuild. Replies come from scripted conversations unless a key is
-      set.
+      {liveModel
+        ? `A study rebuild, answering live with ${liveModel}.`
+        : "A study rebuild. Replies come from scripted conversations unless a key is set."}
     </p>
   )
 
@@ -101,7 +106,11 @@ export function ChatScreen({
     return (
       <div className="flex h-full min-h-0 items-center justify-center overflow-y-auto px-4 py-10">
         <div className="w-full max-w-3xl">
-          <Welcome onPick={(prompt) => send(prompt, [])} composer={composer} />
+          <Welcome
+            onPick={(prompt) => send(prompt, [])}
+            composer={composer}
+            liveModel={liveModel}
+          />
           {footnote}
         </div>
       </div>

@@ -12,9 +12,12 @@ import { Wordmark } from "@/shared/components/wordmark"
 export function Welcome({
   onPick,
   composer,
+  liveModel,
 }: {
   onPick: (prompt: string) => void
   composer: ReactNode
+  /** The model answering, when one is configured. Null means the scripts. */
+  liveModel?: string | null
 }) {
   return (
     <div className="mx-auto flex w-full max-w-2xl animate-rise flex-col items-center px-4 py-10">
@@ -24,8 +27,9 @@ export function Welcome({
         What are we working on?
       </h1>
       <p className="mt-2 max-w-md text-center text-[14px] text-balance text-text-muted">
-        This build answers from scripted conversations. Everything below runs
-        end to end, tools included.
+        {liveModel
+          ? `Answering live with ${liveModel}. The suggestions below are the scripted prompts, and they run against it just the same.`
+          : "This build answers from scripted conversations. Everything below runs end to end, tools included."}
       </p>
 
       <div className="mt-7 w-full">{composer}</div>
