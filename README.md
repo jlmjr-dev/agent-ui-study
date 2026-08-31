@@ -31,8 +31,9 @@ box.
   destroyed.
 - **Opens artifacts in a side panel** with version history, a live preview for
   HTML, and source view.
-- **Runs against the real API** if you paste a key into settings. Same
-  interface, same event stream, different provider.
+- **Runs against a real API** if you paste a key into settings: Anthropic, or
+  anything that speaks Chat Completions. Same interface, same event stream,
+  different provider.
 - **Ships for both experiences.** Desktop gets a sidebar column, hover
   affordances and a side-by-side panel. Phones get a drawer that dismisses
   itself, full-width controls, and panels that take the screen rather than a
@@ -141,7 +142,7 @@ apps/
         artifacts/        side panel, versions, sandboxed preview
         workspace/        the file tree the tools act on
         sidebar/          conversation list, grouping, search
-        settings/         preferences and the live-API key
+        settings/         preferences, provider choice and the API keys
         personas/         saved system prompts
       services/           persisted store, conversation actions
       shared/             hooks, formatting, the wordmark
@@ -149,7 +150,7 @@ apps/
 packages/
   protocol/               content blocks, stream events, the tree, the assembler
   tools/                  virtual filesystem, tool schemas, the registry
-  engine/                 provider interface, the agent loop, both providers
+  engine/                 provider interface, the agent loop, the providers
   ui/                     primitives and the design system
 ```
 
@@ -204,28 +205,74 @@ pnpm format      # Prettier
 
 ## Using the real API
 
-Settings has a field for an API key. With one set, the same interface runs
-against the Messages API instead of the scripts: `createLiveProvider` maps the
-SDK's events onto the same union, so nothing above the provider changes. The
-three model tiers map onto real models, and the settings screen shows which.
+Settings has a provider switch. With a key set, the same interface runs against
+a real API instead of the scripts, and nothing above the provider seam changes.
 
-Two things are worth being honest about:
+**Anthropic.** `createLiveProvider` maps the Messages API's events onto the
+same union the scripts emit. The three tiers map onto real models, and the
+settings screen shows which.
 
-- The SDK runs in the browser with `dangerouslyAllowBrowser`, and the key sits
-  in `localStorage`. That is acceptable for a keyless demo where you paste your
-  own key into your own browser. A product would proxy this through a server,
-  and the settings screen says so.
+**OpenAI, and everything else that speaks Chat Completions.**
+`createOpenAIProvider` takes a base URL, so one adapter reaches OpenAI,
+OpenRouter, Groq, Together, DeepSeek, Mistral, Gemini's compatibility endpoint,
+and a local Ollama, vLLM or LM Studio. Which model each tier sends is a setting
+rather than a constant, because model names are the one thing none of these
+endpoints agree on.
+
+That adapter does more work than the Anthropic one, because the two formats
+disagree about the shape of a turn:
+
+- This project's conversation is Anthropic-shaped: one message holds text, tool
+  calls and tool results side by side as blocks. Chat Completions wants that
+  flattened, so calls move onto the assistant message and every result becomes
+  a message of its own.
+- Chat Completions numbers tool calls, not content blocks, and a run of text
+  has no boundaries at all. Where each block opens and closes is inferred here,
+  from the first delta of each kind and from the end of the stream.
+- Reasoning is not in the spec. DeepSeek and vLLM stream `reasoning_content`,
+  OpenRouter streams `reasoning`, OpenAI streams neither. Both are read, and a
+  turn that carries neither simply has no thinking block.
+- Some servers end a turn that asked for tools with `finish_reason: "stop"`.
+  The agent loop reads the stop reason to decide whether to run them, so a turn
+  that produced a call is reported as one whatever the server said.
+
+Locally, the model matters more than the runtime. `llama3.1:8b` on Ollama runs
+the whole loop, tools included. `qwen2.5-coder` prints the call it wants to
+make as text instead of emitting `tool_calls`, at 14b and 32b alike, so the
+tool never reaches the workspace. That is a template and tuning problem in the
+model, invisible from this side of the adapter.
+
+There is no SDK on that path. The whole protocol is one POST and a `data:`
+stream, so the adapter costs the bundle nothing beyond its own code, and the
+Anthropic SDK stays dynamically imported and out of the entry chunk until
+someone selects it.
+
+Three things are worth being honest about:
+
+- Keys sit in `localStorage` and requests go to the API straight from the page,
+  with `dangerouslyAllowBrowser` on the Anthropic side. That is acceptable for
+  a keyless demo where you paste your own key into your own browser. A product
+  would proxy this through a server, and the settings screen says so.
+- Whether a browser may call an endpoint at all is that endpoint's decision.
+  The hosted APIs send CORS headers, and Ollama allows a page served from
+  localhost out of the box. Serve this app from anywhere else and a local
+  runtime will need its allowed origins widened, `OLLAMA_ORIGINS` in that case.
 - The `detail` field this project hangs off a tool result is its own
-  annotation, not part of the wire format, so the live provider strips it
-  before sending results back.
+  annotation, not part of either wire format, so both providers strip it before
+  sending results back.
 
 ## Testing
 
-105 tests, all on the parts where being wrong is quiet rather than loud: the
+134 tests, all on the parts where being wrong is quiet rather than loud: the
 stream assembler including interrupted tool arguments, the tree's branching and
 its cycle guard, the filesystem's glob and grep, the tool registry's error
 paths, the agent loop's re-indexing and its abort, sidebar bucketing by
 calendar day, and the highlighter's losslessness.
+
+Both halves of the Chat Completions adapter are covered too, and none of it
+needs a key: the conversions are pure functions, and the provider itself takes
+its `fetch`, so a test can hand it a `data:` stream split at awkward
+boundaries and assert on the message that comes out.
 
 ```bash
 pnpm test

@@ -1,10 +1,4 @@
-import {
-  composeSystem,
-  createLiveProvider,
-  createScriptedProvider,
-  runAgent,
-  type Provider,
-} from "@agent-ui-study/engine"
+import { composeSystem, runAgent } from "@agent-ui-study/engine"
 import {
   activePath,
   createAssembler,
@@ -25,6 +19,7 @@ import {
 } from "react"
 
 import { personaById } from "@/features/personas/personas"
+import { providerFor } from "@/features/settings/live-provider"
 import { useSettings } from "@/features/settings/settings-context"
 import {
   addAssistantPlaceholder,
@@ -92,10 +87,7 @@ export function RunProvider({ children }: { children: ReactNode }) {
       const abort = new AbortController()
       controller.current = abort
 
-      const provider: Provider =
-        settings.useLiveProvider && settings.apiKey
-          ? createLiveProvider({ apiKey: settings.apiKey })
-          : createScriptedProvider({ chunkMs: settings.instantStream ? 0 : 14 })
+      const provider = providerFor(settings)
 
       const persona = personaById(store.personas, conversation.personaId)
 

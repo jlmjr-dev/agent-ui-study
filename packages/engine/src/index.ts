@@ -1,6 +1,7 @@
 export * from "./loop"
 export * from "./provider"
 export * from "./providers/anthropic"
+export * from "./providers/openai"
 export * from "./providers/scripted"
 export * from "./scenario"
 export * from "./scenarios"

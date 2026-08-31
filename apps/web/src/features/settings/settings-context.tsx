@@ -1,3 +1,5 @@
+import { DEFAULT_OPENAI_MODELS } from "@agent-ui-study/engine"
+import type { ModelId } from "@agent-ui-study/protocol"
 import {
   createContext,
   useCallback,
@@ -12,16 +14,33 @@ import { readJson, writeJson } from "@/services/storage"
 
 const SETTINGS_KEY = "aus:settings"
 
+export const OPENAI_BASE_URL = "https://api.openai.com/v1"
+
 export type ThemePreference = "light" | "dark" | "system"
+
+/**
+ * Which live back end the provider seam is pointed at. Everything that speaks
+ * Chat Completions is one entry, since the difference between those endpoints
+ * is a base URL and a model name rather than a protocol.
+ */
+export type LiveProviderId = "anthropic" | "openai"
 
 export type Settings = {
   theme: ThemePreference
+  useLiveProvider: boolean
+  liveProvider: LiveProviderId
   /**
    * Kept in localStorage because there is nowhere else to put it in a
    * frontend-only build. The settings screen says so in as many words.
+   *
+   * One key per provider: a single field would log you out of one back end
+   * every time you tried the other.
    */
   apiKey: string
-  useLiveProvider: boolean
+  openaiApiKey: string
+  openaiBaseUrl: string
+  /** Which model each tier sends, because no two endpoints agree on names. */
+  openaiModels: Record<ModelId, string>
   showThinking: boolean
   instantStream: boolean
   sidebarOpen: boolean
@@ -35,8 +54,12 @@ export type Settings = {
 function defaults(): Settings {
   return {
     theme: "system",
-    apiKey: "",
     useLiveProvider: false,
+    liveProvider: "anthropic",
+    apiKey: "",
+    openaiApiKey: "",
+    openaiBaseUrl: OPENAI_BASE_URL,
+    openaiModels: { ...DEFAULT_OPENAI_MODELS },
     showThinking: true,
     instantStream: false,
     sidebarOpen:
